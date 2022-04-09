@@ -3,12 +3,7 @@ package main
 import(
   "fmt"
   "strings"
-  "os"
-  "io"
 )
-
-const tamanhoPeq int = 1001
-const tamanhoG int = 10001
 
 func main() {
   //entrada := "a+(b*c)-2-a\n(a+b*(2-c)-2+a)*2\n(a*b-(2+c)\n2*(3-a))\n)3+b*(2-c)("
@@ -32,68 +27,31 @@ func main() {
 }
 
 func entradaDados(entrada *string){
-  var char [tamanhoG]byte
-  var charSmol [tamanhoPeq]byte
-  //var ultimoChar byte
-
-  if len(os.Args) < 2{
-    return
-  }
-
-  tamanho, _ := os.Stat(os.Args[1])
-
-  if tamanho.Size() == 0{
-    return
-  }
-
-  arq,_ := os.Open(os.Args[1])
-
-  buff := make([]byte, tamanho.Size())
-
-
-  for{
-    _, err := arq.Read(buff)
-    if err != nil{
-      if err == io.EOF{
-        break
-      }
-      return
-    }
-  }
+  var char [10000]byte
+  var charSmol [1000]byte
+  var ultimoChar byte
 
   k := 0
-
-  for i,_ := range buff{
-    if i < tamanhoG{
-      charSmol[k] = buff[i]
-      char[i] = charSmol[k]
-      
-      if charSmol[k] == '\n'{
-        k = 0
-      }
-
-      k++
-      
-      if k >= tamanhoPeq{
-        char[i+(k-1)] = '\n'
-        k = 0
-      }
-
-      
+  for i,_ := range charSmol{
+    fmt.Scanf("%c", &charSmol[i])
+    if charSmol[0] == '\n'{
+      return
     }
-
-    if i >= tamanhoG{
-      char[i-1] = '\n'
+    if ultimoChar == '\n' && charSmol[i] == '\n'{
       break
     }
+    ultimoChar = charSmol[i]
+
+  }
+  
+  for j,_ := range charSmol{
+      char[k+j] = charSmol[j]
   }
 
-  for m,_ := range char{
-    *entrada += string(char[m])
+  for l,_ := range char{
+    *entrada += string(char[l])
   }
 }
-    
-  
 
 func printa(saida string){
   fmt.Printf("%s\n",saida)
