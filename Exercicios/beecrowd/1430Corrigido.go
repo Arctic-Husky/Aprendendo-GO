@@ -18,24 +18,26 @@ var mapaNotas = map[byte]float64{
   }
 
 func main(){
-  
-  input,err := inputUsuario()
-  if err != nil{
-    return
-  }
-  
-  lista := partirString(input)
-  
-  qnt := 0
-  comecou := false
-  for _,uni := range lista{
-    qnt = qnt + verificar(uni,mapaNotas)
-    if uni != "" && !comecou{
-      comecou = true
+
+  for{
+    input,err := inputUsuario()
+    if err != nil{
+      return
     }
-    if uni == "" && comecou{
-      fmt.Printf("%d\n",qnt)
-      qnt = 0
+    
+    lista := partirString(input)
+    
+    qnt := 0
+    comecou := false
+    for _,uni := range lista{
+      qnt = qnt + verificar(uni,mapaNotas)
+      if uni != "" && !comecou{
+        comecou = true
+      }
+      if uni == "" && comecou{
+        fmt.Printf("%d\n",qnt)
+        qnt = 0
+      }
     }
   }
 }
@@ -59,30 +61,19 @@ func partirString(input string)[]string{
 
 func inputUsuario() (string, error){
   var input string
-  var inputCompleto string
+  
 
-  i := 0
-  for{
-    if i > MAX{
-      return " ", fmt.Errorf("ERRO")
-    }
+  fmt.Scanf("%s", &input)
 
-    fmt.Scanf("%s", &input)
-
-    inputCompleto += input
-
-    if inputCompleto[len(inputCompleto)-1] == '*'{
-      break
-    }
-    
-    i++
-  }
-
-  if len(inputCompleto) > MAX || len(inputCompleto) < MIN{
+  if input[len(input)-1] == '*'{
     return " ", fmt.Errorf("ERRO")
   }
 
-  return inputCompleto, nil
+  if len(input) > MAX || len(input) < MIN{
+    return " ", fmt.Errorf("ERRO")
+  }
+
+  return input, nil
 }
 
 func verificar(input string, mapa map[byte]float64)int{
