@@ -3,18 +3,17 @@ package main
 import(
   "fmt"
   "strings"
-  //"bufio"
-  //"os"
 )
 
 func main() {
   var entrada string
   var saida string
 
-
-  i := 0
   for{
-    entradaDados(&entrada)
+    err := entradaDados(&entrada)
+    if err != nil{
+      return
+    }
 
     if entrada == ""{
       return
@@ -28,21 +27,19 @@ func main() {
 
     saida = ""
     entrada = ""
-    i++
   }
 }
 
-func entradaDados(entrada *string){
+func entradaDados(entrada *string) (error){
   var charSmol [1000]byte
 
-  //reader := bufio.NewReader(os.Stdin)
-
-  //input,_ := reader.ReadString(' ')
-
   for i,_ := range charSmol{
-    fmt.Scanf("%c", &charSmol[i])
+    _, err := fmt.Scanf("%c", &charSmol[i])
+    if err != nil{
+      return fmt.Errorf("ERRO")
+    }
     if charSmol[0] == '\n'{
-      return
+      return nil
     }
     if charSmol[i] == '\n'{
       break
@@ -56,7 +53,7 @@ func entradaDados(entrada *string){
 
   //*entrada += input
 
-  
+  return nil
 }
 
 func printa(saida string){
