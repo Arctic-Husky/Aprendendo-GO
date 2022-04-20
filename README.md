@@ -8,4 +8,4 @@ Questões: https://www.beecrowd.com.br/
 
 uDebug: https://www.udebug.com/URI
 
-Livro: quii.gitbook.io/learn-go-with-tests/
+Livro: https://quii.gitbook.io/learn-go-with-tests/
