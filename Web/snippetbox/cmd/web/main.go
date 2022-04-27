@@ -32,17 +32,16 @@ func main() {
     infoLog:infoLog,
   }
 
-  mux := http.NewServeMux()
-  
-  mux.HandleFunc("/", app.home)
-  mux.HandleFunc("/snippet", app.showSnippet)
-  mux.HandleFunc("/snippet/create", app.createSnippet)
+  //mux := app.routes()
 
-  fileServer := http.FileServer(http.Dir("./ui/static/"))
-  mux.Handle("/static/",http.StripPrefix("/static",fileServer))
+  srv := &http.Server{
+    Addr: *addr,
+    ErrorLog: errorLog,
+    Handler: app.routes(),
+  }
   
   app.infoLog.Printf("Inicializando o servidor na porta: %s\n", *addr)
-  err := http.ListenAndServe(*addr, mux)
+  err := srv.ListenAndServe()
   app.errorLog.Fatal(err)
   
 //   //multiplexador em concorrência, o escutador
