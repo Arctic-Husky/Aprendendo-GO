@@ -1,17 +1,23 @@
 package main
 
 import (
+  "database/sql"
   "log"
   "flag"
   "net/http"
   "os"
+
+  _ "github.com/go-sql-driver/mysql"
+  "github.com/Arctic-Husky/Aprendendo-GO/pkg/models/mysql"
 )
 
 type application struct{
   errorLog *log.Logger
   infoLog *log.Logger
+  snippets *mysql.SnippetModel
 }
 
+// curl -i -X POST http://localhost:4000/snippet/create
 
 //router www.site.com/coisa1/coisa2
 //handlers tratar de requisições
@@ -20,16 +26,27 @@ type application struct{
 func main() {
               // nome da flag, valor e descricao
   addr := flag.String("addr", ":4000", "Porta da Rede")
+
+  dsn := flag.String("dsn",
+                     "1rJx8vlHTM:6IuGT3vqrE@tcp(remotemysql.com)/1rJx8vlHTM?parseTime=true", 
+                     "MySql DSN")
+  
   flag.Parse()
 
   infoLog := log.New(os.Stdout, "INFO:\t", log.Ldate|log.Ltime)
   errorLog := log.New(os.Stderr, "ERROR:\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-
+  db, err := openDB(*dsn)
+  if err != nil{
+    errorLog.Fatal(err)
+  }
+  defer db.Close()
+  
   // new application
   app := &application{
     errorLog:errorLog,
     infoLog:infoLog,
+    snippets: &mysql.SnippetModel{DB:db},
   }
 
   //mux := app.routes()
@@ -41,7 +58,7 @@ func main() {
   }
   
   app.infoLog.Printf("Inicializando o servidor na porta: %s\n", *addr)
-  err := srv.ListenAndServe()
+  err = srv.ListenAndServe()
   app.errorLog.Fatal(err)
   
 //   //multiplexador em concorrência, o escutador
@@ -82,4 +99,15 @@ func main() {
 //     return
 //   }
 //   rw.Write([]byte("Criando um novo snippet"))
+}
+
+func openDB(dsn string) (*sql.DB, error){
+  db, err := sql.Open("mysql", dsn)
+  if err!= nil{
+    return nil, err
+  }
+  if err = db.Ping(); err != nil{
+    return nil, err
+  }
+  return db, nil
 }

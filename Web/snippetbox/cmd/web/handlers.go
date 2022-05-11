@@ -3,9 +3,11 @@ package main
 //go run cmd/web/*
 import (
 	"fmt"
-	"html/template"
+	//"html/template"
 	"net/http"
 	"strconv"
+  
+  "github.com/Arctic-Husky/Aprendendo-GO/pkg/models"
 )
 
 func(app *application) home(rw http.ResponseWriter, r *http.Request){
@@ -14,22 +16,31 @@ func(app *application) home(rw http.ResponseWriter, r *http.Request){
     return
   } 
 
-  files := []string{
-    "./ui/html/home.page.tmpl.html",
-    "./ui/html/base.layout.tmpl.html",
-    "./ui/html/footer.partial.tmpl.html",
-  }
-  ts, err := template.ParseFiles(files...)
+  // files := []string{
+  //   "./ui/html/home.page.tmpl.html",
+  //   "./ui/html/base.layout.tmpl.html",
+  //   "./ui/html/footer.partial.tmpl.html",
+  // }
+  // ts, err := template.ParseFiles(files...)
+  // if err != nil{
+  //   app.serverError(rw, err)
+  //   // app.errorLog.Println(err.Error())
+  //   // http.Error(rw, "Internal Error",500)
+  //   return
+  // }
+  // err = ts.Execute(rw, nil)
+  // if err != nil{
+  //   app.serverError(rw, err)
+  //   return
+  // }
+
+  snippets, err := app.snippets.Latest()
   if err != nil{
-    app.serverError(rw, err)
-    // app.errorLog.Println(err.Error())
-    // http.Error(rw, "Internal Error",500)
+    app.serverError(rw,err)
     return
   }
-  err = ts.Execute(rw, nil)
-  if err != nil{
-    app.serverError(rw, err)
-    return
+  for _,s := range snippets{
+    fmt.Fprintf(rw, "%v \n",s)
   }
 }
 
@@ -41,7 +52,19 @@ func(app *application) showSnippet(rw http.ResponseWriter, r *http.Request){
     // http.NotFound(rw, r)
     return
   }
-  fmt.Fprintf(rw, "Exibir o Snippet de ID: %d", id)
+
+  s, err := app.snippets.Get(id)
+  if err == models.ErrNoRecord{
+    app.notFound(rw)
+    return
+  }else if err != nil{
+    app.serverError(rw, err)
+    return
+  }
+
+  fmt.Fprintf(rw, "%v",s)
+  
+  //fmt.Fprintf(rw, "Exibir o Snippet de ID: %d", id)
 }
 
 func(app *application) createSnippet(rw http.ResponseWriter, r *http.Request){
@@ -51,6 +74,16 @@ func(app *application) createSnippet(rw http.ResponseWriter, r *http.Request){
     // http.Error(rw, "Metodo não permitido", http.StatusMethodNotAllowed)
     return
   }
-  
-  rw.Write([]byte("Criar novo snippet"))
+
+  title := "ALMOÇO DE HJ"
+  content := "RICKS BUERGUE RICKS BURGIER"
+  expires := "7"
+
+  id, err := app.snippets.Insert(title,content,expires)
+  if err != nil{
+    app.serverError(rw,err)
+    return
+  }
+
+  http.Redirect(rw,r,fmt.Sprintf("/snippet:id=%d",id), http.StatusSeeOther)
 }
